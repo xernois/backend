@@ -1,71 +1,47 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import 'reflect-metadata';
 import express from 'express';
-import { AbstractController } from './class/AbstractController';
-
-interface Route {
-  path: string;
-  method: string;
-  name: string;
-}
-
-interface RouteMap {
-  [key: string]: Route;
-}
+import { Resolver } from './class/Injector';
+import { RouteType } from './type';
+import { Type } from './enum';
 
 export default function () {
 
-  const config = {
-    appFolder: 'src',
-    controllersFolder: 'controllers',
-  }
-  const appFolder = path.join(process.cwd(), config.appFolder);
-  const controllersFolder = path.join(appFolder, config.controllersFolder);
-
-  const controllers: (AbstractController)[] = [];
-  const routes: RouteMap = {};
-
-  //import all controllers from controllers folder
-  fs.readdirSync(controllersFolder).forEach(file => {
-    if (file.endsWith('.ts')) {
-      const controller = require(path.join(controllersFolder, file)).default;
-      if (controller.TYPE === 'controller') controllers.push(new controller);
+    const config = {
+        appFolder: 'src',
     }
-  });
 
-  const serve = () => {
-    const app = express();
+    const appFolder = path.join(process.cwd(), config.appFolder);
 
-    //register all routes
-    controllers.forEach(controller => {
-      controller.getRoutes().forEach((route, key) => {
-        app.all(route.path, controller[key as keyof typeof controller]);
-      })
-    });
+    const deepReadDir = (appFolder: string) => {
+        fs.readdirSync(appFolder).forEach(file => {
+            if (file.endsWith('.ts')) {
+                const classType = require(path.join(appFolder, file)).default;
+                if (classType?.prototype?.TYPE === Type.Service || classType?.prototype?.TYPE === Type.Controller) Resolver.resolve(classType);
+            } else if (fs.lstatSync(path.join(appFolder, file)).isDirectory()) deepReadDir(path.join(appFolder, file));
+        });
+    }
 
-    app.listen(3000, () => {
-      console.log('Server started on port 3000');
-    });
+    deepReadDir(appFolder);
 
-  }
+    const serve = () => {
+        const app = express();
 
-  return {
-    serve
-  }
+        //register all routes
+        const controllers = Resolver.getInstancesByType(Type.Controller);
+        controllers.forEach(controller => {
+            (controller as any).ROUTE_MAP.forEach((route: RouteType, key: string) => {
+                app.all(route.path, (controller[key as keyof typeof controller] as Function).bind(controller));
+            })
+        })
+
+        app.listen(3000, () => {
+            console.log('Server started on port 3000');
+        });
+    }
+
+    return {
+        serve
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

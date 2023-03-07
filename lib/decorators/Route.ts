@@ -1,8 +1,9 @@
-import { AbstractController } from "../class/AbstractController";
-import { RouteType } from "../type/Route";
-export const Route = (route: RouteType) => {
-  const Route = (target: AbstractController, propertyKey: string) => {
-    (target.constructor as typeof AbstractController).ROUTE_MAP.set(propertyKey, route);
+import { Constructor, RouteType } from "../type";
+
+export const Route = <T>(route: RouteType) => {
+  return (target: T, propertyKey: string) => {
+    if (!(target as Constructor<T>).constructor.prototype.ROUTE_MAP) (target as Constructor<T>).constructor.prototype.ROUTE_MAP = new Map();
+
+    (target as Constructor<T>).constructor.prototype.ROUTE_MAP.set(propertyKey, route);
   }
-  return Route;
 }

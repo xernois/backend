@@ -4,17 +4,17 @@ import { Constructor } from '../type';
 
 export class Injector {
 
-    private depInstances: Map<string, Constructor<any>> = new Map<string, Constructor<any>>();
+    private depInstances: Map<string, Constructor<unknown>> = new Map<string, Constructor<unknown>>();
 
     // Not storing an instances map
-    static resolve<T>(target: Constructor<any>): T {
+    static resolve<T>(target: Constructor<T>): T {
         const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
-        const injections = tokens.map((token: any) => Injector.resolve<any>(token));
+        const injections = tokens.map((token: Constructor<T>) => Injector.resolve<unknown>(token));
         return new target(...injections);
     }
 
     // Storing Instances map so a service will only have one instance
-    resolve (target: Constructor<any>): any {
+    resolve(target: Constructor<any>) {
 
         if (this.depInstances && this.depInstances.has(target.name)) {
             console.log(target.name, 'instance exists');

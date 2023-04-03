@@ -1,9 +1,11 @@
 import { Constructor, RouteType } from "../type";
 
 export const Route = <T>(route: RouteType) => {
-  return (target: T, propertyKey: string) => {
-    if (!(target as Constructor<T>).constructor.prototype.ROUTE_MAP) (target as Constructor<T>).constructor.prototype.ROUTE_MAP = new Map();
+  return (target: T, propertyKey: unknown) => {
+    const controller = (target as Constructor<T>).constructor.prototype;
 
-    (target as Constructor<T>).constructor.prototype.ROUTE_MAP.set(propertyKey, route);
+    if (!controller.ROUTE_MAP) controller.ROUTE_MAP = new Map();
+
+    controller.ROUTE_MAP.set(propertyKey, route);
   }
 }

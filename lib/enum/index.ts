@@ -18,3 +18,9 @@ export enum Type {
     Controller = 'controller',
     Service = 'service'
 }
+
+
+export enum Method {
+    GET = 'GET',
+    POST = 'POST',
+}

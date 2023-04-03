@@ -1,3 +1,6 @@
+import http, { IncomingMessage } from 'http';
+import { Method } from '../enum';
+import { Server } from '../class/Server';
 /**
  * Represents a route object with path, method and name
  * @typedef {Object} RouteType
@@ -15,7 +18,7 @@
  */
 export type RouteType = {
   path: string;
-  method: string[] | string;
+  method: Method[] | Method;
   name: string
 }
 
@@ -30,4 +33,19 @@ export type RouteType = {
  */
 export interface Constructor<T> {
   new(...args: any[]): T;
+}
+
+export type Handler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
+export type route = { path: string, handler: Handler };
+export type handlerList = Record<Method, route[]>;
+
+export type Request = http.IncomingMessage;
+export type Response = http.ServerResponse;
+
+export type ControllerOptions = { path: string };
+
+export type Plugin = Handler;
+
+export type ServerConfig = {
+  appFolder: string;
 }

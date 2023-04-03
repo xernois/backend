@@ -2,7 +2,7 @@ import { Injectable } from "../../lib/decorators/Injectable"
 import dataService from "./dataService";
 
 @Injectable()
-export default class MainService {
+export default class SecondService {
 
     constructor(
         private dataService: dataService

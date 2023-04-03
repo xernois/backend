@@ -1,0 +1,10 @@
+Impossibles :
+[ ] fix circular dependency
+
+Faisables :
+[ ] rework les middlewares
+[ ] verbosity as a server config
+[ ] list all routes and threre priority
+[ ] possibility to use regex as a route matcher,
+[ ] priority index for route
+[ ] finir de commenter

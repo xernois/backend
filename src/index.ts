@@ -3,6 +3,7 @@ import logger from '../lib/plugin/logger';
 
 const server = app({
     appFolder: 'src',
+    trailingSlashRedirect: true
 });
 
 server.use(logger());

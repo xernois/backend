@@ -2,8 +2,8 @@ Impossibles :
 [ ] fix circular dependency
 
 Faisables :
-[ ] possibility to use regex as a route matcher and get params in route url,
-[ ] priority index for route
-[ ] list all routes and threre priority
+[ ] list all routes and there priority
+[ ] Resolver
+[ ] Middleware & plugin as class
 [ ] verbosity as a server config
 [ ] finir de commenter

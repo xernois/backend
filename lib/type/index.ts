@@ -20,6 +20,7 @@ export type RouteType = {
   path: string;
   method: Method[] | Method;
   name: string
+  resolver?: Record<string, (param: string) => unknown>[]
 }
 
 /**
@@ -39,7 +40,7 @@ export type Handler = (req: http.IncomingMessage, res: http.ServerResponse) => v
 export type route = { path: string, handler: Handler };
 export type handlerList = Record<Method, route[]>;
 
-export type Request = http.IncomingMessage;
+export type Request = http.IncomingMessage & { params?: Record<string, string>, data?: Record<string, unknown> };
 export type Response = http.ServerResponse;
 
 export type ControllerOptions = { path: string };

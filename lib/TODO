@@ -2,9 +2,8 @@ Impossibles :
 [ ] fix circular dependency
 
 Faisables :
-[ ] rework les middlewares
-[ ] verbosity as a server config
-[ ] list all routes and threre priority
-[ ] possibility to use regex as a route matcher,
+[ ] possibility to use regex as a route matcher and get params in route url,
 [ ] priority index for route
+[ ] list all routes and threre priority
+[ ] verbosity as a server config
 [ ] finir de commenter

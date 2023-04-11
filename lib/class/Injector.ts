@@ -17,12 +17,11 @@ export class Injector {
     resolve(target: Constructor<any>) {
 
         if (this.depInstances && this.depInstances.has(target.name)) {
-            console.log(target.name, 'instance exists');
             return this.depInstances.get(target.name);
         }
 
         const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
-        const injections = tokens.map((token: any) => Injector.resolve<any>(token));
+        const injections = tokens.map((token: any) => this.resolve(token));
 
         const instance = new target(...injections);
         this.depInstances.set(target.name, instance);

@@ -2,8 +2,7 @@ Impossibles :
 [ ] fix circular dependency
 
 Faisables :
-[ ] list all routes and there priority
-[ ] Resolver
-[ ] Middleware & plugin as class
+[ ] les middleware et les resolver ne doivent pas compter comme singleton sauf si un service devient un rsolver ou un middleware avec l'interface
 [ ] verbosity as a server config
 [ ] finir de commenter
+[ ] Rendre les resolver et les middleware asynchrone

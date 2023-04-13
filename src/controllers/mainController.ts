@@ -1,9 +1,7 @@
 import { Route } from '../../lib/decorators/Route';
 import MainService from '../services/mainService';
-import { Controller } from '../../lib/decorators/Controller';
+import { Controller, Method, Response, Request  } from '../../lib';
 import SecondService from '../services/secondService';
-import { Method } from '../../lib/enum';
-import { Response, Request } from '../../lib/type';
 import UserResolver from '../resolvers/UserResolver';
 
 @Controller({ path: '/main' })

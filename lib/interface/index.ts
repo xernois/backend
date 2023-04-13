@@ -1,9 +1,9 @@
-import { Handler } from '../type';
+import { Handler } from '../';
 
-export interface Resolver<T = unknown> {
-    resolve: (param?: string) => T;
+export interface IResolver<T = unknown> {
+    resolve: ((param?: string) => T) | ((param?: string) => Promise<T>) ;
 }
 
-export interface Middleware {
+export interface IMiddleware {
     execute: Handler
 }

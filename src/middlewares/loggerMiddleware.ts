@@ -1,17 +1,9 @@
-import { Injectable } from "../../lib/decorators/Injectable";
-import { Middleware } from "../../lib/interface";
-import { Request, Response } from "../../lib/type";
-import MainService from "../services/mainService";
+import { Request, Response, Middleware, IMiddleware } from "../../lib";
 
-@Injectable()
-export default class LoggerMiddleware implements Middleware {
-
-        constructor(
-                private mainService: MainService
-        ) { }
+@Middleware({ singleton: false })
+export default class LoggerMiddleware implements IMiddleware {
 
         execute(req: Request, res: Response) {
-                // console.log(req.method, req.url, req.headers.host, req.headers['user-agent'])
-                console.log(this.mainService.dataService.data);
+                console.log(req.method, req.url, req.headers.host, req.headers['user-agent'])
         }
 }

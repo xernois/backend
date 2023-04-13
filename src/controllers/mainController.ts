@@ -1,10 +1,10 @@
-import { Route } from '../../lib/decorators/Route';
 import MainService from '../services/mainService';
-import { Controller, Method, Response, Request  } from '../../lib';
+import { Controller, Method, Response, Request, Route } from '../../lib';
 import SecondService from '../services/secondService';
 import UserResolver from '../resolvers/UserResolver';
+import LoggerMiddleware from '../middlewares/loggerMiddleware';
 
-@Controller({ path: '/main' })
+@Controller({ path: '/main', middlewares: [LoggerMiddleware] })
 export default class MainController {
 
   constructor(
@@ -12,7 +12,7 @@ export default class MainController {
     private secondService: SecondService
   ) { }
 
-  @Route({ path: '/', method: Method.GET, name: 'index' })
+  @Route({ path: '/', method: Method.GET, name: 'index'})
   public index(req: Request, res: Response) {
 
     res.end(JSON.stringify(this.secondService.getAndAdd()))

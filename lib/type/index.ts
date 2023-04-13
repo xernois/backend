@@ -1,6 +1,6 @@
 import http from 'http';
 import { Method } from '../enum';
-import { IResolver } from '../interface';
+import { IMiddleware, IResolver } from '../interface';
 /**
  * Represents a route object with path, method and name
  * @typedef {Object} RouteType
@@ -17,10 +17,11 @@ import { IResolver } from '../interface';
  * Mostly used with @Route decorator to register a route on a controller
  */
 export type RouteType = {
-  path: string;
-  method: Method[] | Method;
+  path: string
+  method: [Method, ...Method[]] | Method
   name: string
   resolvers?: Resolvers
+  middlewares?: Middlewares
 }
 
 /**
@@ -37,13 +38,13 @@ export interface Constructor<T> {
 }
 
 export type Handler = ((req: http.IncomingMessage, res: http.ServerResponse) => void) | ((req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>);
-export type route = { path: string, handler: Handler, resolvers?: Resolvers };
+export type route = { path: string, handler: Handler, resolvers?: Resolvers, middlewares?: Middlewares };
 export type handlerList = Record<Method, route[]>;
 
 export type Request = http.IncomingMessage & { params?: Record<string, string>, data?: Record<string, unknown> };
 export type Response = http.ServerResponse;
 
-export type ControllerOptions = { path: string };
+export type ControllerOptions = { path?: string, middlewares?: Middlewares };
 
 export type ServerConfig = {
   appFolder: string;
@@ -51,3 +52,4 @@ export type ServerConfig = {
 }
 
 export type Resolvers = Record<any, Constructor<IResolver>>;
+export type Middlewares = Constructor<IMiddleware>[];

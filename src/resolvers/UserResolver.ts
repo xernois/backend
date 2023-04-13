@@ -1,9 +1,8 @@
-import { Injectable } from "../../lib/decorators/Injectable";
-import { Resolver } from "../../lib/interface";
+import { Resolver, IResolver } from "../../lib";
 import MainService from "../services/mainService";
 
-@Injectable()
-export default class UserResolver implements Resolver<string> {
+@Resolver({singleton: false})
+export default class UserResolver implements IResolver<string> {
 
     constructor(
         private mainService: MainService

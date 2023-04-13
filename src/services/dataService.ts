@@ -1,4 +1,4 @@
-import { Injectable } from "../../lib/decorators/Injectable"
+import { Injectable } from "../../lib"
 
 @Injectable()
 export default class dataService {

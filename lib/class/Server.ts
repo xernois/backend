@@ -1,17 +1,13 @@
 import http from 'http';
-import { Constructor, Handler, handlerList, Resolvers, RouteType, ServerConfig } from '../type';
-import { Method, Type } from '../enum';
 import fs from 'fs';
 import path from 'path';
-import { Response, Request } from '../type';
-import { Resolver } from './Injector';
 import { match } from 'path-to-regexp';
-import { Resolver as IResolver, Middleware } from '../interface';
+import { Injector, Request, IResolver, IMiddleware, Method, Type, Constructor, Handler, handlerList, Resolvers, RouteType, ServerConfig } from '../';
 
 export class Server {
 
     private handlers: handlerList
-    private middlewares: Middleware[] = [];
+    private middlewares: IMiddleware[] = [];
 
     private server: http.Server
 
@@ -20,7 +16,7 @@ export class Server {
         this.server = http.createServer();
         this.deepReadDir(path.join(process.cwd(), config.appFolder));
 
-        const controllers = Resolver.getInstancesByType(Type.Controller);
+        const controllers = Injector.getInstancesByType(Type.Controller);
 
         console.group('Routes :')
         controllers.forEach(controller => {
@@ -42,8 +38,8 @@ export class Server {
         fs.readdirSync(appFolder).forEach(async file => {
             if (file.endsWith('.ts')) {
                 const classType = require(path.join(appFolder, file)).default;
-                if (classType?.prototype?.TYPE === Type.Service || classType?.prototype?.TYPE === Type.Controller) {
-                    Resolver.resolve(classType);
+                if (classType?.prototype?.SINGLETON === true) {
+                    Injector.resolve(classType);
                 }
             } else if (fs.lstatSync(path.join(appFolder, file)).isDirectory()) this.deepReadDir(path.join(appFolder, file));
         })
@@ -52,10 +48,10 @@ export class Server {
     public listen(port: number, callback?: () => void) {
         this.server.listen(port, callback);
 
-        this.server.on('request', (req, res) => {
+        this.server.on('request', async (req, res) => {
 
             // call all plugins
-            this.middlewares.forEach(plugin => plugin.execute(req, res));
+            await Promise.all(this.middlewares.map(plugin => plugin.execute(req, res)))
 
             // if the url has a trailing / redirect to the same url without the trailing /
             if (this.config.trailingSlashRedirect && req.url?.endsWith('/')) {
@@ -76,7 +72,7 @@ export class Server {
                         (<Request>req).data = Object.keys(handler.resolvers || {}).reduce((acc: Record<any, any>, curr) => {
                             if(handler.resolvers?.[curr]) {
                                 
-                                acc[curr] = (Resolver.resolve(handler.resolvers?.[curr]) as IResolver).resolve((<Request>req).params?.[curr])
+                                acc[curr] = (Injector.resolve(handler.resolvers?.[curr]) as IResolver).resolve((<Request>req).params?.[curr])
                             }                        
                             return acc
                         }, {});
@@ -93,7 +89,7 @@ export class Server {
         });
     }
 
-    public use(middleware: Constructor<Middleware>) {
-        this.middlewares.push(Resolver.resolve(middleware) as Middleware);
+    public use(middleware: Constructor<IMiddleware>) {
+        this.middlewares.push(Injector.resolve(middleware) as IMiddleware);
     }
 }

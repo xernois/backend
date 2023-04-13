@@ -16,7 +16,9 @@
  */
 export enum Type {
     Controller = 'controller',
-    Service = 'service'
+    Service = 'service',
+    Middleware = 'middleware',
+    Resolver = 'resolver'
 }
 
 

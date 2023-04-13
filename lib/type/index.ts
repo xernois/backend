@@ -1,6 +1,6 @@
 import http from 'http';
 import { Method } from '../enum';
-import { Resolver } from '../interface';
+import { IResolver } from '../interface';
 /**
  * Represents a route object with path, method and name
  * @typedef {Object} RouteType
@@ -36,7 +36,7 @@ export interface Constructor<T> {
   new(...args: any[]): T;
 }
 
-export type Handler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
+export type Handler = ((req: http.IncomingMessage, res: http.ServerResponse) => void) | ((req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>);
 export type route = { path: string, handler: Handler, resolvers?: Resolvers };
 export type handlerList = Record<Method, route[]>;
 
@@ -50,4 +50,4 @@ export type ServerConfig = {
   trailingSlashRedirect?: boolean;
 }
 
-export type Resolvers = Record<any, Constructor<Resolver>>;
+export type Resolvers = Record<any, Constructor<IResolver>>;

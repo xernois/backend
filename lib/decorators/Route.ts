@@ -1,4 +1,4 @@
-import { Constructor, RouteType } from "../type";
+import { Constructor, RouteType } from "../";
 
 export const Route = <T>(route: RouteType) => {
   return (target: T, propertyKey: string) => {

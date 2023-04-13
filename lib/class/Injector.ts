@@ -1,17 +1,9 @@
 import 'reflect-metadata';
-import { Type } from '../enum';
-import { Constructor } from '../type';
+import { Constructor, Type } from '../';
 
-export class Injector {
+class DependencyInjector {
 
     private depInstances: Map<string, unknown> = new Map<string, Constructor<unknown>>();
-
-    // Not storing an instances map
-    static resolve<T>(target: Constructor<T>): T {
-        const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
-        const injections = tokens.map((token: Constructor<T>) => Injector.resolve<unknown>(token));
-        return new target(...injections);
-    }
     
     // Storing Instances map so a service will only have one instance
     resolve(target: Constructor<unknown>) {
@@ -23,10 +15,10 @@ export class Injector {
         const injections = tokens.map((token: any) => this.resolve(token));
         
         const instance = new target(...injections);
-        this.depInstances.set(target.name, instance);
+        if(target.prototype.SINGLETON) {
+            this.depInstances.set(target.name, instance);
+        }
         
-        //debug Injection :
-        // console.debug(target, target.name, tokens);
         return instance;
     }
 
@@ -35,4 +27,4 @@ export class Injector {
     }
 }
 
-export const Resolver = new Injector();
+export const Injector = new DependencyInjector();

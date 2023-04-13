@@ -48,4 +48,5 @@ export type Plugin = Handler;
 
 export type ServerConfig = {
   appFolder: string;
+  trailingSlashRedirect?: boolean;
 }

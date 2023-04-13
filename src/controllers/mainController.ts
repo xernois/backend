@@ -20,10 +20,17 @@ export default class MainController {
 
   }
 
-  @Route({ path: '/home', method: [Method.GET, Method.POST], name: 'index' })
+  @Route({ path: '/home', method: [Method.GET, Method.POST], name: 'home' })
   public home(req: Request, res: Response) {
 
     res.end(JSON.stringify(this.mainService.getAndAdd()))
+
+  }
+
+  @Route({ path: '/user/:user', method: [Method.GET], name: 'dynamic' })
+  public dynamic(req: Request, res: Response, user: string) {
+
+    res.end(user)
 
   }
 }

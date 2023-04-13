@@ -1,16 +1,17 @@
 import http from 'http';
-import { Handler, handlerList, Plugin, RouteType, ServerConfig } from '../type';
+import { Constructor, Handler, handlerList, Resolvers, RouteType, ServerConfig } from '../type';
 import { Method, Type } from '../enum';
 import fs from 'fs';
 import path from 'path';
 import { Response, Request } from '../type';
 import { Resolver } from './Injector';
 import { match } from 'path-to-regexp';
+import { Resolver as IResolver, Middleware } from '../interface';
 
 export class Server {
 
     private handlers: handlerList
-    private plugins: Plugin[] = [];
+    private middlewares: Middleware[] = [];
 
     private server: http.Server
 
@@ -21,17 +22,20 @@ export class Server {
 
         const controllers = Resolver.getInstancesByType(Type.Controller);
 
+        console.group('Routes :')
         controllers.forEach(controller => {
             (controller as any).ROUTE_MAP.forEach((route: RouteType, key: string) => {
-                if (typeof route.method === 'string') this.handle(route.method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), (controller[key as keyof typeof controller] as Handler).bind(controller));
-                else route.method.forEach(method => this.handle(method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), (controller[key as keyof typeof controller] as Handler).bind(controller)));
+                console.debug([route.method].flat().join(','), ' - ', route.path, route.resolvers ? ' - ' + JSON.stringify(Object.keys(route.resolvers).reduce((acc: any, curr) => (acc[curr] = route.resolvers?.[curr]?.name, acc),{})) : '');
+                if (typeof route.method === 'string') this.handle(route.method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers);
+                else route.method.forEach(method => this.handle(method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers));
             })
         })
+        console.groupEnd();
     }
 
-    private handle(method: Method, path: string, handler: Handler) {
+    private handle(method: Method, path: string, handler: Handler, resolvers?: Resolvers) {
         if (!this.handlers[method]) this.handlers[method] = [];
-        this.handlers[method].push({ path, handler });
+        this.handlers[method].push({ path, handler, resolvers });
     }
 
     private deepReadDir(appFolder: string) {
@@ -51,7 +55,7 @@ export class Server {
         this.server.on('request', (req, res) => {
 
             // call all plugins
-            this.plugins.forEach(plugin => plugin(req, res));
+            this.middlewares.forEach(plugin => plugin.execute(req, res));
 
             // if the url has a trailing / redirect to the same url without the trailing /
             if (this.config.trailingSlashRedirect && req.url?.endsWith('/')) {
@@ -66,9 +70,16 @@ export class Server {
             if (this.handlers[req.method as Method]) {
                 const handler = this.handlers[req.method as Method].find(handler => {
                     let res = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url || '');
-                    
-                    if(res) {
-                        (<Request>req).params = res.params as Record<string, any>;                     
+
+                    if (res) {
+                        (<Request>req).params = res.params as Record<string, any>;
+                        (<Request>req).data = Object.keys(handler.resolvers || {}).reduce((acc: Record<any, any>, curr) => {
+                            if(handler.resolvers?.[curr]) {
+                                
+                                acc[curr] = (Resolver.resolve(handler.resolvers?.[curr]) as IResolver).resolve((<Request>req).params?.[curr])
+                            }                        
+                            return acc
+                        }, {});
                     }
                     return res;
                 });
@@ -82,7 +93,7 @@ export class Server {
         });
     }
 
-    public use(plugin: Plugin) {
-        this.plugins.push(plugin);
+    public use(middleware: Constructor<Middleware>) {
+        this.middlewares.push(Resolver.resolve(middleware) as Middleware);
     }
 }

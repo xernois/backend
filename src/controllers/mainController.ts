@@ -4,6 +4,7 @@ import { Controller } from '../../lib/decorators/Controller';
 import SecondService from '../services/secondService';
 import { Method } from '../../lib/enum';
 import { Response, Request } from '../../lib/type';
+import UserResolver from '../resolvers/UserResolver';
 
 @Controller({ path: '/main' })
 export default class MainController {
@@ -27,10 +28,10 @@ export default class MainController {
 
   }
 
-  @Route({ path: '/user/:user', method: [Method.GET], name: 'dynamic', resolver: [{ 'user': (_) => _.toUpperCase() }] })
+  @Route({ path: '/user/:user', method: [Method.GET], name: 'dynamic', resolvers: { 'user': UserResolver } })
   public dynamic(req: Request, res: Response) {
 
-    res.end(req.params?.['user'])
+    res.end(req.data?.['user'])
 
   }
 }

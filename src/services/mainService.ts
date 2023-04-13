@@ -5,7 +5,7 @@ import dataService from "./dataService";
 export default class MainService {
 
     constructor(
-        private dataService: dataService
+        public dataService: dataService
     ) { }
 
     data: number[] = []

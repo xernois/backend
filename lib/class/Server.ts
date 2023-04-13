@@ -3,6 +3,7 @@ import { Handler, handlerList, Plugin, RouteType, ServerConfig } from '../type';
 import { Method, Type } from '../enum';
 import fs from 'fs';
 import path from 'path';
+import { Response, Request } from '../type';
 import { Resolver } from './Injector';
 import { match } from 'path-to-regexp';
 
@@ -28,7 +29,7 @@ export class Server {
         })
     }
 
-    private handle(method: Method, path: string, handler: (req: http.IncomingMessage, res: http.ServerResponse) => void) {
+    private handle(method: Method, path: string, handler: Handler) {
         if (!this.handlers[method]) this.handlers[method] = [];
         this.handlers[method].push({ path, handler });
     }
@@ -66,6 +67,10 @@ export class Server {
                 const handler = this.handlers[req.method as Method].find(handler => {
                     let res = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url || '');
                     
+                    if(res) {
+                        (<Request>req).params = res.params as Record<string, any>;                     
+                    }
+                    return res;
                 });
                 if (handler) handler.handler(req, res);
             }

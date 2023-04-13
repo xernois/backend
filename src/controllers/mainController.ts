@@ -27,10 +27,10 @@ export default class MainController {
 
   }
 
-  @Route({ path: '/user/:user', method: [Method.GET], name: 'dynamic' })
-  public dynamic(req: Request, res: Response, user: string) {
+  @Route({ path: '/user/:user', method: [Method.GET], name: 'dynamic', resolver: [{ 'user': (_) => _.toUpperCase() }] })
+  public dynamic(req: Request, res: Response) {
 
-    res.end(user)
+    res.end(req.params?.['user'])
 
   }
 }

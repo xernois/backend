@@ -5,6 +5,8 @@
  * @enum {string}
  * @property {string} Controller - The class is a controller
  * @property {string} Service - The class is a service
+ * @property {string} Middleware - The class is a middleware
+ * @property {string} Resolver - The class is a resolver
  *
  * @example class Test {
  * constructor() {}
@@ -21,7 +23,14 @@ export enum Type {
     Resolver = 'resolver'
 }
 
-
+/**
+ * Represents the HTTP methods.
+ * This type is used in the @Route decorator
+ * 
+ * @enum {string} 
+ * @property {string} GET - The HTTP GET method
+ * @property {string} POST - The HTTP POST method
+ */
 export enum Method {
     GET = 'GET',
     POST = 'POST',

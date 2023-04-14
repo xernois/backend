@@ -2,27 +2,73 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { match } from 'path-to-regexp';
-import { Injector, Request, IResolver, IMiddleware, Method, Type, Constructor, Handler, handlerList, Resolvers, RouteType, ServerConfig, Middlewares } from '../';
+import { Injector, Request, IResolver, IMiddleware, Method, Type, Constructor, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig } from '../';
 
+/**
+ * Server class
+ * @class
+ * @classdesc - The server class to handle the http requests
+ * @see {@link ServerConfig}
+ */
 export class Server {
 
+    /**
+     * Map of handlers
+     * @private
+     * @type {handlerList}
+     * 
+     * @see {@link handlerList}
+     * @see {@link Server}
+     */
     private handlers: handlerList
-    private middlewares: IMiddleware[] = [];
 
+    /**
+     * Array of global middlewares
+     * @private
+     * @type {IMiddleware[]}
+     *  
+     * @see {@link IMiddleware}
+     * @see {@link Server}
+     */
+    private middlewares: IMiddleware[]
+
+    /**
+     * The http server
+     * @private
+     * @type {http.Server}
+     *  
+     * @see {@link http.Server}
+     * @see {@link http}
+     * @see {@link Server}
+     */
     private server: http.Server
 
+    /**
+     * Instanciate the server
+     * @constructor 
+     * @param {ServerConfig} config - The server configuration
+     * 
+     * @see {@link ServerConfig}  
+     * @see {@link Server}
+     */
     constructor(private config: ServerConfig) {
+        // initialize the server properties
+        this.middlewares = []
         this.handlers = Object.values(Method).reduce((acc, method: string) => (acc[method as Method] = [], acc), {} as handlerList);
         this.server = http.createServer();
+
+        // crawl the app folder to get all the controllers, middlewares, etc. and store them in the dependency injector if they singleton
         this.deepReadDir(path.join(process.cwd(), config.appFolder));
 
+        // get all controllers instances
         const controllers = Injector.getInstancesByType(Type.Controller);
 
         console.group('Routes :')
+        // iterate over all controllers and get their routes
         controllers.forEach(controller => {
-            
+            // iterate over all routes and store them in the handlers map
             (controller as any).ROUTE_MAP.forEach((route: RouteType, key: string) => {
-                console.debug([route.method].flat().join(','), ' - ', path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), route.resolvers ? ' - ' + JSON.stringify(Object.keys(route.resolvers).reduce((acc: any, curr) => (acc[curr] = route.resolvers?.[curr]?.name, acc), {})) : '');
+                console.log([route.method].flat().join(','), ' - ', path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), route.resolvers ? ' - ' + JSON.stringify(Object.keys(route.resolvers).reduce((acc: any, curr) => (acc[curr] = route.resolvers?.[curr]?.name, acc), {})) : '');
                 if (typeof route.method === 'string') this.handle(route.method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers, [...(controller as any).MIDDLEWARES, ...(route.middlewares || [])]);
                 else route.method.forEach(method => this.handle(method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers, [...(controller as any).MIDDLEWARES, ...(route.middlewares || [])]));
             })
@@ -30,11 +76,34 @@ export class Server {
         console.groupEnd();
     }
 
+    /**
+     * Add a route handler to the handlers map
+     * @private
+     * @param {Method} method - The http method
+     * @param {string} path - The route path
+     * @param {Handler} handler - The handler function
+     * @param {Resolvers} [resolvers] - The resolvers for the route
+     * @param {Middlewares} [middlewares] - The middlewares for the route
+     * 
+     * @see {@link Method}
+     * @see {@link Handler}
+     * @see {@link Resolvers}
+     * @see {@link Middlewares}
+     * @see {@link Server}
+     */
     private handle(method: Method, path: string, handler: Handler, resolvers?: Resolvers, middlewares?: Middlewares) {
         if (!this.handlers[method]) this.handlers[method] = [];
         this.handlers[method].push({ path, handler, resolvers, middlewares });
     }
 
+    /**
+     * Recursively crawl the app folder to get all the controllers, middlewares, etc. and store them in the dependency injector if they singleton
+     * @private
+     * @param {string} appFolder - The app folder path (the starting poin)
+     * 
+     * @see {@link Injector}
+     * @see {@link Server}
+     */
     private deepReadDir(appFolder: string) {
         fs.readdirSync(appFolder).forEach(async file => {
             if (file.endsWith('.ts')) {
@@ -46,6 +115,15 @@ export class Server {
         })
     }
 
+    /**
+     * Start the server
+     * @param {number} port - The port to listen to
+     * @param {Function} [callback] - The callback to call when the server is up and running
+     * 
+     * @see {@link http.Server}
+     * @see {@link http}
+     * @see {@link Server}
+     */
     public listen(port: number, callback?: () => void) {
         this.server.listen(port, callback);
 
@@ -97,6 +175,13 @@ export class Server {
         });
     }
 
+    /**
+     * Add a global middleware to the server
+     * @param {Constructor<IMiddleware>} middleware - The middleware class
+     *  
+     * @see {@link IMiddleware}
+     * @see {@link Server}
+     */
     public use(middleware: Constructor<IMiddleware>) {
         this.middlewares.push(Injector.resolve(middleware) as IMiddleware);
     }

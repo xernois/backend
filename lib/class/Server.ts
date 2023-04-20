@@ -57,23 +57,25 @@ export class Server {
         this.handlers = Object.values(Method).reduce((acc, method: string) => (acc[method as Method] = [], acc), {} as handlerList);
         this.server = http.createServer();
 
-        // crawl the app folder to get all the controllers, middlewares, etc. and store them in the dependency injector if they singleton
-        this.deepReadDir(path.join(process.cwd(), config.appFolder));
+        (async () => {
+            // crawl the app folder to get all the controllers, middlewares, etc. and store them in the dependency injector if they singleton
+            await this.deepReadDir(path.join(process.cwd(), config.appFolder));
 
-        // get all controllers instances
-        const controllers = Injector.getInstancesByType(Type.Controller);
+            // get all controllers instances
+            const controllers = Injector.getInstancesByType(Type.Controller);
 
-        console.group('Routes :')
-        // iterate over all controllers and get their routes
-        controllers.forEach(controller => {
-            // iterate over all routes and store them in the handlers map
-            (controller as any).ROUTE_MAP.forEach((route: RouteType, key: string) => {
-                console.log([route.method].flat().join(','), ' - ', path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), route.resolvers ? ' - ' + JSON.stringify(Object.keys(route.resolvers).reduce((acc: any, curr) => (acc[curr] = route.resolvers?.[curr]?.name, acc), {})) : '');
-                if (typeof route.method === 'string') this.handle(route.method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers, [...(controller as any).MIDDLEWARES, ...(route.middlewares || [])]);
-                else route.method.forEach(method => this.handle(method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers, [...(controller as any).MIDDLEWARES, ...(route.middlewares || [])]));
+            console.group('Routes :')
+            // iterate over all controllers and get their routes
+            controllers.forEach(controller => {
+                // iterate over all routes and store them in the handlers map
+                (controller as any).ROUTE_MAP.forEach((route: RouteType, key: string) => {
+                    console.log([route.method].flat().join(','), ' - ', path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), route.resolvers ? ' - ' + JSON.stringify(Object.keys(route.resolvers).reduce((acc: any, curr) => (acc[curr] = route.resolvers?.[curr]?.name, acc), {})) : '');
+                    if (typeof route.method === 'string') this.handle(route.method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers, [...(controller as any).MIDDLEWARES, ...(route.middlewares || [])]);
+                    else route.method.forEach(method => this.handle(method, path.join((controller as any).BASE_ROUTE, route.path).split(path.sep).join(path.posix.sep), ((controller as Object)[key as keyof typeof controller] as Handler).bind(controller), route.resolvers, [...(controller as any).MIDDLEWARES, ...(route.middlewares || [])]));
+                })
             })
-        })
-        console.groupEnd();
+            console.groupEnd();
+        })()
     }
 
     /**
@@ -104,15 +106,13 @@ export class Server {
      * @see {@link Injector}
      * @see {@link Server}
      */
-    private deepReadDir(appFolder: string) {
-        fs.readdirSync(appFolder).forEach(async file => {
+    private async deepReadDir(appFolder: string) {
+        return Promise.all(fs.readdirSync(appFolder).map(async file => {
             if (file.endsWith('.ts')) {
-                const classType = require(path.join(appFolder, file)).default;
-                if (classType?.prototype?.SINGLETON === true) {
-                    Injector.resolve(classType);
-                }
-            } else if (fs.lstatSync(path.join(appFolder, file)).isDirectory()) this.deepReadDir(path.join(appFolder, file));
-        })
+                const { default: classType } = await import(path.join(appFolder, file));
+                if (classType?.prototype?.SINGLETON === true) Injector.resolve(classType);
+            } else if (fs.lstatSync(path.join(appFolder, file)).isDirectory()) await this.deepReadDir(path.join(appFolder, file));
+        }))
     }
 
     /**

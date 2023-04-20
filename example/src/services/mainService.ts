@@ -1,11 +1,11 @@
-import { Injectable } from "../../lib"
+import { Injectable } from "../../../dist"
 import dataService from "./dataService";
 
 @Injectable()
-export default class SecondService {
+export default class MainService {
 
     constructor(
-        private dataService: dataService
+        public dataService: dataService
     ) { }
 
     data: number[] = []

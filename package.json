@@ -1,14 +1,16 @@
 {
-    "name": "backend",
-    "version": "1.0.0",
+    "name": "@xernois/easy-backend",
+    "version": "0.0.1",
     "description": "",
-    "main": "src/index.ts",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "prepublish": "tsc",
+        "register": "npm publish --access public"
     },
     "keywords": [],
     "author": "",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
         "@types/node": "^18.14.6"
     },

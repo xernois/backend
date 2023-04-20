@@ -1,4 +1,4 @@
-import { Request, Response, Middleware, IMiddleware } from "../../lib";
+import { Request, Response, Middleware, IMiddleware } from "../../../dist";
 
 @Middleware({ singleton: false })
 export default class LoggerMiddleware implements IMiddleware {

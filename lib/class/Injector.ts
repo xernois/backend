@@ -16,7 +16,7 @@ class DependencyInjector {
      * @see {@link Map}
      * @see {@link DependencyInjector}
      */
-    private depInstances: Map<string, unknown> = new Map<string, Constructor<unknown>>();
+    public depInstances: Map<string, unknown> = new Map<string, Constructor<unknown>>();
 
     /**
      * method to resolve a dependency
@@ -38,11 +38,8 @@ class DependencyInjector {
 
         // create a new instance of the target class and store it if it is a singleton
         const instance = new target(...injections);
-        if (target.prototype.SINGLETON) {
-            this.depInstances.set(target.name, instance);
-        }
+        if (target.prototype.SINGLETON) this.depInstances.set(target.name, instance);
 
-        
         return instance;
     }
 

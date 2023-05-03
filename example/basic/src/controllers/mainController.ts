@@ -1,5 +1,5 @@
 import MainService from '../services/mainService';
-import { Controller, Method, Response, Request, Route } from '../../../dist';
+import { Controller, Method, Response, Request, Route } from '../../../../dist';
 import SecondService from '../services/secondService';
 import UserResolver from '../resolvers/UserResolver';
 import LoggerMiddleware from '../middlewares/loggerMiddleware';

@@ -24,7 +24,7 @@ export type RouteType = {
  * @typedef {Object} Constructor
  * @property {Function} new - The constructor function
  */
-export interface Constructor<T> {
+export type Constructor<T> = {
   new(...args: any[]): T;
 }
 
@@ -50,20 +50,6 @@ export type route = { path: string, handler: Handler, resolvers?: Resolvers, mid
  * @property {route[]} [keyof Method] - The list of routes per methods
  */
 export type handlerList = Record<Method, route[]>;
-
-/**
- * Represents a request object
- * @typedef {http.IncomingMessage} Request
- * @property {Record<string, string>} params - The params of the request
- * @property {Record<string, unknown>} data - The data of the request
- */
-export type Request = http.IncomingMessage & { params?: Record<string, string>, data?: Record<string, unknown> };
-
-/**
- * Represents a response object
- * @typedef {http.ServerResponse} Response
- */
-export type Response = http.ServerResponse;
 
 /**
  * Represents a controller options
@@ -96,3 +82,22 @@ export type Resolvers = Record<any, Constructor<IResolver>>;
  * @typedef {Constructor<IMiddleware>[]} Middlewares
  */
 export type Middlewares = Constructor<IMiddleware>[];
+
+/**
+ * Represents a request object
+ * @typedef {http.IncomingMessage} Request
+ * @property {Record<string, string>} params - The params of the request
+ * @property {Record<string, unknown>} data - The data of the request
+ */
+export interface Request extends http.IncomingMessage {
+  params?: Record<string, string>,
+  data?: Record<string, unknown>
+};
+
+/**
+ * Represents a response object
+ * @typedef {http.ServerResponse} Response
+ */
+export interface Response extends http.ServerResponse {
+  sendEvent: (data: string, event?: string, id?: unknown) => void
+};

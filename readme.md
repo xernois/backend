@@ -179,3 +179,4 @@ But at this point it's really a matter of preference and also the size of the pr
 - [ ] verbosity as a server config
 - [ ] Serve static file
 - [ ] Wrapping the Response object and request object to implements mmethods 
+- [ ] Decorator to reolve injection, not via constructor 

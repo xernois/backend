@@ -2,7 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { match } from 'path-to-regexp';
-import { Injector, Request, IResolver, IMiddleware, Method, Type, Constructor, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig } from '../';
+import { Injector, Request, Response, IResolver, IMiddleware, Method, Type, Constructor, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig } from '../';
 
 /**
  * Server class
@@ -127,7 +127,24 @@ export class Server {
     public listen(port: number, callback?: () => void) {
         this.server.listen(port, callback);
 
-        this.server.on('request', async (req, res) => {
+        this.server.on('request', async (req: Request, res: Response) => {
+            req.params = {};
+            req.data = {};
+
+            res.sendEvent = (event: string, data: any, id: unknown) => {
+
+                if(!res.headersSent) {
+                    res.setHeader('Cache-Control', 'no-cache');
+                    res.setHeader('Content-Type', 'text/event-stream');
+                    res.flushHeaders();
+                } 
+
+                res.write(`id: ${id} \n`);
+                res.write(`event: ${event} \n`);
+                res.write(`data: ${data} \n\n`);
+            }
+
+
 
             // apply all global middlewares
             for (const middleware of this.middlewares) {
@@ -141,12 +158,15 @@ export class Server {
                 return res.end();
             }
 
+            let handlerFound = false;
+
             // otherwise, find the handler for the request and call it
             if (this.handlers[req.method as Method]) {
                 // get le bon handler pour la route et la methode
                 for (const handler of this.handlers[req.method as Method]) {
                     const results = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url || '');
                     if (results) {
+                        handlerFound = true;
                         (<Request>req).params = results.params as Record<string, any>;
 
                         (<Request>req).data = {};
@@ -169,9 +189,10 @@ export class Server {
             }
 
             // if the response is not ended and if no handler were found, return 404
-            if (res.writableEnded) return
-            res.writeHead(404)
-            res.end()
+            if (!handlerFound) {
+                res.writeHead(404)
+                res.end()
+            }
         });
     }
 

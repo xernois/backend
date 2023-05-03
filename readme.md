@@ -1,7 +1,7 @@
 # Easy backend
 
-This project is a basic nodejs "framework" to ease the creation of advanced api, directly based on the nodejs http server.
-I am working alone and during my free time on this project, but if you are interrested in this project don't mind contacting me or create a pull request 😉.
+This project is a basic nodejs "framework" to ease the creation of advanced api's, based directly on the nodejs http server.
+I am working on this project alone and in my spare time, but if you are interested in this project don't hesitate to contact me or create a pull request 😉.
 
 ## Features
 
@@ -13,7 +13,7 @@ I am working alone and during my free time on this project, but if you are inter
 
 ### 🖥️ Server
 
-Servers are just instances so you can easily create a server and configure it to use the right source files
+Servers are simply instances, so you can easily create a server and configure it to use the correct source files.
 
 ```js
 import app from "@xernois/easy-backend";
@@ -28,11 +28,11 @@ server.listen(3000, () => {
 });
 ```
 
-> PS: this means that you can easily create multiple server instance listening on differents ports.
+> PS: This means that you can easily create multiple server instances listening on different ports.
 
 ### 🧭 controller/route
 
-Controllers are classes that contains one ore more route and it can have a default path affecting all it's routes.
+Controllers are classes that contain one or more routes and can have a default path that affects all of it's routes.
 
 ```js
 import { Controller, Method, Response, Request, Route } from '@xernois/easy-backend';
@@ -51,15 +51,15 @@ export default class MainController {
 }
 ```
 
-Above is an example of a simple controller but with a default path `/main` (this is optional). This controller has only one route, a route is defined by a path, a list of method, a name and a handler. In the example the path `/user/:user` means that it will match any url like `/main/user/test`, `/main/user/123` or `/main/user/1_b_r` and that the variable part of the url will be accessible via a variable with the same name in the request params object `req.params?.['user']`. Handler takes two arguments, the request and the response, these are just the normal objects from nodejs but slightly enhanced, see the [nodeJs doc](https://nodejs.org/api/http.html#class-httpincomingmessage).
+Above is an example of a simple controller, but with a default path of `/main` (this is optional). This controller has only one route, a route is defined by a path, a list of methods, a name and a handler. In the example the path `/user/:user` means that it will match any url like `/main/user/test`, `/main/user/123` or `/main/user/1_b_r` and that the variable part of the url will be accessible via a variable of the same name in the request params object `req.params?.['user']`. The handler takes two arguments, the request and the response, these are just the normal nodejs objects but slightly extended, see the [nodejs doc](https://nodejs.org/api/http.html#class-httpincomingmessage).
 
-The last thing that you may have noticed is the resolver the resolver is use to resolve data as the route is accessed, in the example above, when eccessing the url `/main/user/1` it will get datas for the user with id one and give acces to these data inside the handler. The users data can be found under `req.data?.['user']` object.
+The last thing you may have noticed is the resolver, the resolver is used to resolve data as the route is accessed, in the example above when accessing the url `/main/user/1` it will get datas for the user with id one and give access to this data inside the handler. The user data can be found under the `req.data?.['user']` object.
 
 > PS: Note that the resoler key must be the same as the variable in the path.
 
 ### 🔎 Resolvers
 
-A resolver is a class that implement the IResolver interface and therefor the resolve method wich take the url variable as a parameter and return modified data.
+A resolver is a class that implements the IResolver interface and therefore the resolve method, which takes the url variable as a parameter and returns modified data.
 
 ```js
 import { Resolver, IResolver } from "@xernois/easy-backend";
@@ -80,11 +80,11 @@ export default class UserResolver implements IResolver<string> {
 }
 ```
 
-Resolvers are not meant to held datas but just to acces thoses and ease the usage of controllers. But you can completly avoid resolver and inject a service in yor controller to access all your datas directly from the route handler.
+Resolvers are not meant to hold data, just to access it and make it easier to use controllers. However, you can avoid resolvers altogether and inject a service into your controller to access all your data directly from the route handler.
 
 ### 🗃️ services
 
-Services are object that are meant to access/manipulate datas from a database or any data source.
+Services are objects designed to access/manipulate data from a database or other data source.
 
 ```js
 import { Injectable } from "@xernois/easy-backend";
@@ -103,11 +103,11 @@ export default class dataService {
 }
 ```
 
-there is nothing really specific to services except that these are singletons. this mean that everytime you use the dataService (just an example) it will always be the same instance. That's why storing the arry directly on the service is working.
+there is nothing really specific to services except that these are singletons. this mean that everytime you use the dataService (just an example) it will always be the same instance. That's why storing the array directly on the service is working.
 
 ### 🛡️ Middlewares
 
-Middlewares are juste here to alter or block request before the handler, it can be use for authentification, to restrict access to specific routes for example. It can be applied to a specific route or directly on a controller.
+Middleware is only used to modify or block requests before they reach the handler, it can be used for authentication, for example to restrict access to certain routes. It can be applied to a specific route or directly to a controller.
 
 ```js
 import { Controller, Method, Response, Request, Route } from '@xernois/easy-backend';
@@ -126,7 +126,7 @@ export default class MainController {
 }
 ```
 
-in this example the LoggerMiddleware is applied on the controller, this mean it will effect all routes of this controller (in this case only one).
+In this example, the LoggerMiddleware is applied to the controller, which means that it will affect all routes on that controller (only one in this case).
 
 ```js
 import { Request, Response, Middleware, IMiddleware } from "@xernois/easy-backend";
@@ -140,11 +140,12 @@ export default class LoggerMiddleware implements IMiddleware {
 }
 ```
 
-Middlewares implements the IMiddleware interface and the execute method wich is basically a handler. In this case, the middleware is just logging every request method, url, host and user-agent.
+Middleware implements the IMiddleware interface and the execute method, which is basically a handler. In this case, the middleware just logs each request method, url, host and user-agent.
 
 ## 📂 Structure
 
-There are no specific rules for file structure even if I would propbably advise user to use the example structure 
+There are no specific rules for file structure, although I would probably advise users to use the example structure.
+
 ```
 │   index.ts
 │
@@ -163,7 +164,8 @@ There are no specific rules for file structure even if I would propbably advise 
             mainService.ts
             secondService.ts
 ```
-But at this point it's really a question of preferences and also the size of the project.
+
+But at this point it's really a matter of preference and also the size of the project.
 
 ## 🏁 Getting started
 
@@ -176,3 +178,4 @@ But at this point it's really a question of preferences and also the size of the
 - [ ] Improve les logs
 - [ ] verbosity as a server config
 - [ ] Serve static file
+- [ ] Wrapping the Response object and request object to implements mmethods 

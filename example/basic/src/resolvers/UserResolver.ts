@@ -1,4 +1,4 @@
-import { Resolver, IResolver } from "../../../dist";
+import { Resolver, IResolver } from "../../../../dist";
 import MainService from "../services/mainService";
 
 @Resolver({singleton: false})

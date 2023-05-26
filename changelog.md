@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - attempt to alter Response and Request objects to add methods and properties
+- starts of a static folder middleware to serve static files
+
+<!-- 
+## [WIP]
+
+- Add configuration for the staticFolder middleware
+ -->
 
 ## [0.0.2] - 2023-05-04
 
@@ -26,7 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created default lib structure
 
 
-<!-- ## [0.0.1] - 2023-03-05
+<!-- 
+## [0.0.1] - 2023-03-05
 ### Added
 
 - item 1

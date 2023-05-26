@@ -2,9 +2,9 @@ import MainService from '../services/mainService';
 import { Controller, Method, Response, Request, Route } from '../../../../dist';
 import SecondService from '../services/secondService';
 import UserResolver from '../resolvers/UserResolver';
-import LoggerMiddleware from '../middlewares/loggerMiddleware';
+import { logger } from '../middlewares/loggerMiddleware';
 
-@Controller({ path: '/main', middlewares: [LoggerMiddleware] })
+@Controller({ path: '/main', middlewares: [logger] })
 export default class MainController {
 
   constructor(

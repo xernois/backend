@@ -1,9 +1,5 @@
-import { Request, Response, Middleware, IMiddleware } from "../../../dist";
+import { Request, Response, } from "../../../../dist";
 
-@Middleware({ singleton: false })
-export default class LoggerMiddleware implements IMiddleware {
-
-        execute(req: Request, res: Response) {
-                console.log(req.method, req.url, req.headers.host, req.headers['user-agent'])
-        }
+export const logger = (req: Request, res: Response) => {
+        console.log(req.method, req.url, req.headers.host, req.headers['user-agent'])
 }

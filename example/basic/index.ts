@@ -1,4 +1,4 @@
-import app from "../dist";
+import app from "../../dist";
 
 const server = app({
     appFolder: 'src',

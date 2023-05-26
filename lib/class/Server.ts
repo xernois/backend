@@ -2,7 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { match } from 'path-to-regexp';
-import { Injector, Request, Response, IResolver, IMiddleware, Method, Type, Constructor, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig } from '../';
+import { Injector, Request, Response, IResolver, Method, Type, Constructor, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig, Middleware } from '../';
 
 /**
  * Server class
@@ -30,7 +30,7 @@ export class Server {
      * @see {@link IMiddleware}
      * @see {@link Server}
      */
-    private middlewares: IMiddleware[]
+    private middlewares: Middlewares
 
     /**
      * The http server
@@ -59,7 +59,7 @@ export class Server {
 
         (async () => {
             // crawl the app folder to get all the controllers, middlewares, etc. and store them in the dependency injector if they singleton
-            await this.deepReadDir(path.join(process.cwd(), config.appFolder));
+            config.appFolder && await this.deepReadDir(path.join(process.cwd(), config.appFolder));
 
             // get all controllers instances
             const controllers = Injector.getInstancesByType(Type.Controller);
@@ -149,7 +149,7 @@ export class Server {
             // apply all global middlewares
             for (const middleware of this.middlewares) {
                 if (res.writableEnded) return
-                await middleware.execute(req, res)
+                await middleware(req, res)
             }
 
             // if the url has a trailing / redirect to the same url without the trailing /
@@ -179,7 +179,7 @@ export class Server {
                         // apply all route middlewares
                         for (const middleware of handler.middlewares || []) {
                             if (res.writableEnded) return
-                            await (Injector.resolve(middleware) as IMiddleware).execute(req, res)
+                            await middleware(req, res)
                         }
 
                         handler.handler(req, res)
@@ -198,12 +198,12 @@ export class Server {
 
     /**
      * Add a global middleware to the server
-     * @param {Constructor<IMiddleware>} middleware - The middleware class
+     * @param {Middleware} middleware - The middleware handler
      *  
-     * @see {@link IMiddleware}
+     * @see {@link Middleware}
      * @see {@link Server}
      */
-    public use(middleware: Constructor<IMiddleware>) {
-        this.middlewares.push(Injector.resolve(middleware) as IMiddleware);
+    public use(middleware: Middleware) {
+        this.middlewares.push(middleware);
     }
 }

@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Server } from './class';
 import { ServerConfig } from './type';
 
+export * from "./middlewares";
 export * from "./decorators";
 export * from "./interface";
 export * from "./class";

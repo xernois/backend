@@ -1,4 +1,4 @@
-import { Injectable } from "../../../dist"
+import { Injectable } from "../../../../dist"
 import dataService from "./dataService";
 
 @Injectable()

@@ -1,5 +1,5 @@
 import http from 'http';
-import { Method, IMiddleware, IResolver } from '../';
+import { Method, IResolver } from '../';
 
 /**
  * Represents a route object with path, method and name
@@ -32,7 +32,7 @@ export type Constructor<T> = {
  * Represents a handler function
  * @typedef {Object} Handler
  */
-export type Handler = ((req: http.IncomingMessage, res: http.ServerResponse) => void) | ((req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>);
+export type Handler = ((req: Request, res: Response) => unknown) | ((req: Request, res: Response) => Promise<unknown>);
 
 /**
  * Represents a route object with path, handler and resolvers
@@ -66,7 +66,7 @@ export type ControllerOptions = { path?: string, middlewares?: Middlewares };
  * @property {boolean} [trailingSlashRedirect] - The trailing slash redirect option
  */
 export type ServerConfig = {
-  appFolder: string;
+  appFolder: string | undefined;
   trailingSlashRedirect?: boolean;
 }
 
@@ -78,12 +78,6 @@ export type ServerConfig = {
 export type Resolvers = Record<any, Constructor<IResolver>>;
 
 /**
- * Represents a list of middlewares
- * @typedef {Constructor<IMiddleware>[]} Middlewares
- */
-export type Middlewares = Constructor<IMiddleware>[];
-
-/**
  * Represents a request object
  * @typedef {http.IncomingMessage} Request
  * @property {Record<string, string>} params - The params of the request
@@ -91,7 +85,8 @@ export type Middlewares = Constructor<IMiddleware>[];
  */
 export interface Request extends http.IncomingMessage {
   params?: Record<string, string>,
-  data?: Record<string, unknown>
+  data?: Record<string, unknown>,
+  url: string,
 };
 
 /**
@@ -101,3 +96,7 @@ export interface Request extends http.IncomingMessage {
 export interface Response extends http.ServerResponse {
   sendEvent: (data: string, event?: string, id?: unknown) => void
 };
+
+export type Middleware = Handler
+export type Middlewares = Middleware[]
+export type MiddlewareFactory = (...args: unknown[]) => Middleware

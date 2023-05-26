@@ -2,7 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { match } from 'path-to-regexp';
-import { Injector, Request, Response, IResolver, Method, Type, Constructor, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig, Middleware } from '../';
+import { Injector, Request, Response, IResolver, Method, Type, Handler, Resolvers, RouteType, Middlewares, handlerList, ServerConfig, Middleware, wrapResponse, wrapRequest } from '../';
 
 /**
  * Server class
@@ -128,28 +128,12 @@ export class Server {
         this.server.listen(port, callback);
 
         this.server.on('request', async (req: Request, res: Response) => {
-            req.params = {};
-            req.data = {};
-
-            res.sendEvent = (event: string, data: any, id: unknown) => {
-
-                if(!res.headersSent) {
-                    res.setHeader('Cache-Control', 'no-cache');
-                    res.setHeader('Content-Type', 'text/event-stream');
-                    res.flushHeaders();
-                } 
-
-                res.write(`id: ${id} \n`);
-                res.write(`event: ${event} \n`);
-                res.write(`data: ${data} \n\n`);
-            }
-
-
+            res = wrapResponse(res)
+            req = wrapRequest(req)
 
             // apply all global middlewares
             for (const middleware of this.middlewares) {
-                if (res.writableEnded) return
-                await middleware(req, res)
+                if (!res.writableEnded) await middleware(req, res)
             }
 
             // if the url has a trailing / redirect to the same url without the trailing /

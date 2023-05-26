@@ -170,13 +170,3 @@ But at this point it's really a matter of preference and also the size of the pr
 ## 🏁 Getting started
 
 🚧 Comming soon
-
-## ⌛ Work in progress
-
-- [ ] warn and prevent crash due to circular dependencies
-
-- [ ] Improve les logs
-- [ ] verbosity as a server config
-- [ ] Serve static file
-- [ ] Wrapping the Response object and request object to implements mmethods 
-- [ ] Decorator to reolve injection, not via constructor 

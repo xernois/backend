@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <button id="start">Start</button>
+    <button id="cancel">Cancel</button>
+
+    <pre id="result"></pre>
+
+    <script>
+        const btnStart = document.querySelector('#start')
+        const btnCancel = document.querySelector('#cancel')
+
+        const result = document.querySelector('#result')
+
+        btnStart.addEventListener('click', () => {
+            const controller = new AbortController()
+            const signal = controller.signal
+
+            fetch('http://localhost:3000/api', { signal })
+                .then(res => res.text())
+                .then(res => {
+                    result.textContent = res
+                })
+                .catch(err => {
+                    result.textContent = err.message
+                })
+
+            btnCancel.addEventListener('click', () => {
+                controller.abort()
+            })
+        })
+
+    </script>
+
+</body>
+</html>

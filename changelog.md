@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [WIP]
 
 - Add configuration for the staticFolder middleware
+- Decorator to resolve injection, not via constructor 
+- Improve les logs
+- verbosity as a server config
+- possibility to cancel request
+- warn and prevent crash due to circular dependencies
  -->
 
 ## [0.0.2] - 2023-05-04

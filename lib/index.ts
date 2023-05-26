@@ -8,6 +8,7 @@ export * from "./interface";
 export * from "./class";
 export * from "./enum";
 export * from "./type";
+export * from "./util";
 
 /**
  * Function to creates a new server instance

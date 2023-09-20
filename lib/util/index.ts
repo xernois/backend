@@ -3,9 +3,10 @@ import http from 'http';
 
 export const wrapResponse = (res: http.ServerResponse): Response => {
 
-    (<Response>res).sendEvent = (event: string, data: any, id: unknown) => {
+    (<Response>res).sendEvent = (data: any, event?: string, id?: unknown) => {
 
         if (!res.headersSent) {
+            res.setHeader('X-Accel-Buffering', 'no')
             res.setHeader('Cache-Control', 'no-cache');
             res.setHeader('Content-Type', 'text/event-stream');
             res.flushHeaders();

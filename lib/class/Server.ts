@@ -173,7 +173,7 @@ export class Server {
             }
 
             // if the response is not ended and if no handler were found, return 404
-            if (!handlerFound) {
+            if (!handlerFound && !res.headersSent) {
                 res.writeHead(404)
                 res.end()
             }

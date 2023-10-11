@@ -12,8 +12,8 @@ export const wrapResponse = (res: http.ServerResponse): Response => {
             res.flushHeaders();
         }
 
-        res.write(`id: ${id} \n`);
-        res.write(`event: ${event} \n`);
+        if(id) res.write(`id: ${id} \n`);
+        if(event) res.write(`event: ${event} \n`);
         res.write(`data: ${data} \n\n`);
     }
 

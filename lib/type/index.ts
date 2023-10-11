@@ -86,7 +86,9 @@ export type Resolvers = Record<any, Constructor<IResolver>>;
 export interface Request extends http.IncomingMessage {
   params?: Record<string, string>,
   data?: Record<string, unknown>,
+  query?: Record<string, string>,
   url: string,
+  body: string
 };
 
 /**

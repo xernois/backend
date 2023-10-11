@@ -128,6 +128,12 @@ export class Server {
         this.server.listen(port, callback);
 
         this.server.on('request', async (req: Request, res: Response) => {
+            // if the url has a trailing / redirect to the same url without the trailing /
+            if (this.config.trailingSlashRedirect && req.url?.endsWith('/') && req.url?.length > 1) {
+                res.writeHead(308, { Location: req.url.slice(0, -1) });
+                return res.end();
+            }
+
             res = wrapResponse(res)
             req = wrapRequest(req)
 
@@ -136,19 +142,13 @@ export class Server {
                 if (!res.writableEnded) await middleware(req, res)
             }
 
-            // if the url has a trailing / redirect to the same url without the trailing /
-            if (this.config.trailingSlashRedirect && req.url?.endsWith('/') && req.url?.length > 1) {
-                res.writeHead(301, { Location: req.url.slice(0, -1) });
-                return res.end();
-            }
-
             let handlerFound = false;
 
             // otherwise, find the handler for the request and call it
             if (this.handlers[req.method as Method]) {
                 // get le bon handler pour la route et la methode
                 for (const handler of this.handlers[req.method as Method]) {
-                    const results = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url || '');
+                    const results = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url.split('?')[0] || '');
                     if (results) {
                         handlerFound = true;
                         (<Request>req).params = results.params as Record<string, any>;
@@ -173,7 +173,7 @@ export class Server {
             }
 
             // if the response is not ended and if no handler were found, return 404
-            if (!handlerFound) {
+            if (!handlerFound && !res.headersSent) {
                 res.writeHead(404)
                 res.end()
             }

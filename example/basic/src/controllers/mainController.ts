@@ -15,7 +15,7 @@ export default class MainController {
   @Route({ path: '/', method: Method.GET, name: 'index'})
   public index(req: Request, res: Response) {
 
-    res.end(JSON.stringify(this.secondService.getAndAdd()))
+    res.sendJson(this.secondService.getAndAdd())
 
   }
 
@@ -30,6 +30,5 @@ export default class MainController {
   public dynamic(req: Request, res: Response) {
 
     res.end(req.data?.['user'])
-
   }
 }

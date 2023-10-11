@@ -3,8 +3,7 @@ import http from 'http';
 
 export const wrapResponse = (res: http.ServerResponse): Response => {
 
-    (<Response>res).sendEvent = (data: any, event?: string, id?: unknown) => {
-
+    (<Response>res).sendEvent = (data: string, event?: string, id?: string) => {
         if (!res.headersSent) {
             res.setHeader('X-Accel-Buffering', 'no')
             res.setHeader('Cache-Control', 'no-cache');
@@ -15,7 +14,19 @@ export const wrapResponse = (res: http.ServerResponse): Response => {
         res.write(`id: ${id} \n`);
         res.write(`event: ${event} \n`);
         res.write(`data: ${data} \n\n`);
-    }
+    };
+
+
+    (<Response>res).sendJson = (data: Object) => {
+
+        if (!res.headersSent) {
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Content-Type', 'application/json');
+            res.flushHeaders();
+        }
+
+        res.end(JSON.stringify(data))
+    };
 
     return <Response>res;
 }

@@ -96,7 +96,8 @@ export interface Request extends http.IncomingMessage {
  * @typedef {http.ServerResponse} Response
  */
 export interface Response extends http.ServerResponse {
-  sendEvent: (data: string, event?: string, id?: unknown) => void
+  sendEvent: (data: string, event?: string, id?: string) => void,
+  sendJson: (data: Object) => void
 };
 
 export type Middleware = Handler

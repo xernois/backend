@@ -148,7 +148,7 @@ export class Server {
             if (this.handlers[req.method as Method]) {
                 // get le bon handler pour la route et la methode
                 for (const handler of this.handlers[req.method as Method]) {
-                    const results = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url || '');
+                    const results = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url.split('?')[0] || '');
                     if (results) {
                         handlerFound = true;
                         (<Request>req).params = results.params as Record<string, any>;

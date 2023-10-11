@@ -128,18 +128,18 @@ export class Server {
         this.server.listen(port, callback);
 
         this.server.on('request', async (req: Request, res: Response) => {
+            // if the url has a trailing / redirect to the same url without the trailing /
+            if (this.config.trailingSlashRedirect && req.url?.endsWith('/') && req.url?.length > 1) {
+                res.writeHead(308, { Location: req.url.slice(0, -1) });
+                return res.end();
+            }
+
             res = wrapResponse(res)
             req = wrapRequest(req)
 
             // apply all global middlewares
             for (const middleware of this.middlewares) {
                 if (!res.writableEnded) await middleware(req, res)
-            }
-
-            // if the url has a trailing / redirect to the same url without the trailing /
-            if (this.config.trailingSlashRedirect && req.url?.endsWith('/') && req.url?.length > 1) {
-                res.writeHead(301, { Location: req.url.slice(0, -1) });
-                return res.end();
             }
 
             let handlerFound = false;

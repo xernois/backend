@@ -87,6 +87,7 @@ export interface Request extends http.IncomingMessage {
   params?: Record<string, string>,
   data?: Record<string, unknown>,
   url: string,
+  body: string
 };
 
 /**

@@ -21,10 +21,15 @@ export const wrapResponse = (res: http.ServerResponse): Response => {
 }
 
 export const wrapRequest = (req: http.IncomingMessage): Request => {
-
     (<Request>req).params = {};
+    (<Request>req).body = "";
     (<Request>req).data = {};
     (<Request>req).url ??= '';
+
+    new Promise((resolve) => {
+        req.on('data', chunk => (<Request>req).body += chunk.toString());
+        req.on('end', resolve);
+    })
 
     return <Request>req
 }

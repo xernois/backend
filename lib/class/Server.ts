@@ -139,13 +139,13 @@ export class Server {
 
             // apply all global middlewares
             for (const middleware of this.middlewares) {
-                if (!res.writableEnded) await middleware(req, res)
+                if (!res.writableEnded && !res.headersSent) await middleware(req, res)
             }
 
             let handlerFound = false;
 
             // otherwise, find the handler for the request and call it
-            if (this.handlers[req.method as Method]) {
+            if (this.handlers[req.method as Method] && !res.writableEnded && !res.headersSent) {
                 // get le bon handler pour la route et la methode
                 for (const handler of this.handlers[req.method as Method]) {
                     const results = match(handler.path.replace(/\/$/, ''), { decode: decodeURIComponent })(req.url.split('?')[0] || '');
@@ -162,11 +162,10 @@ export class Server {
 
                         // apply all route middlewares
                         for (const middleware of handler.middlewares || []) {
-                            if (res.writableEnded) return
-                            await middleware(req, res)
+                            if (!res.writableEnded && !res.headersSent) await middleware(req, res)
                         }
 
-                        handler.handler(req, res)
+                        if(!res.writableEnded && !res.headersSent) handler.handler(req, res)
                         break;
                     }
                 }
